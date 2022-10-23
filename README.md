@@ -44,15 +44,33 @@ conda install pytorch=1.4.0
 Ya tenemos todos los paquetes instalados para poder ejecutar todos los scripts correctamente.
 
 
-## 2. Preparación de las secuencias de imágenes
+## 2. Preparación del código y de las secuencias de imágenes
 
 Para poder ejecutar los scripts necesitamos tener las secuencias de imágenes preparadas.
 Tenemos dos opciones: ejecutar los scripts para evaluar los modelos desarrollados utilizando el conjunto de datos DAVIS2017 o
 ejecutar los scripts sobre las imágenes en tiempo real que nos ofrece un dron (al que deberemos estar conectados).
 Además los códigos para ejecutar estas dos opciones son levemente diferentes: para DAVIS2017, el código está en la rama `evaluacion-davis` y, para las imágenes del dron, en la rama `stream-dron`.
 
-1. Opción para ejecutar los scripts sobre DAVIS2017:
+- A) Opción para ejecutar los scripts sobre **DAVIS2017**:
 
+    Primero nos tenemos que traer a local la rama `evaluacion-davis`.
+    ```
+    git fetch TFG--Navegacion_visual_con_drones
+    git branch evaluacion-davis TFG--Navegacion_visual_con_drones/evaluacion-davis
+    ```
+    
+    Una vez tenemos el código correcto en local, nos tenemos que descargar el conjunto de imágenes [DAVIS2017](https://davischallenge.org/davis2017/code.html) y situarlo correctamente en el sistema de archivos:
+    ```
+    cd MATNet/data
+    ln -s ruta_del_DAVIS2017_descargado DAVIS2017
+    ```
+    
+    Por último, sólo queda descargarnos los [modelos con los pesos preentrenados](https://drive.google.com/file/d/1XlenYXgQjoThgRUbffCUEADS6kE4lvV_/view), descomprimirlos y situarlos correctamente en el sistema de archivos:
+    ```
+    cd ../ckpt/MATNet
+    mv ruta_de_los_modelos_descomprimidos/*.pt .
+    ```
 
-
-2. Opción para ejecutar los scripts sobre imágenes en tiempo real del dron:
+- B) Opción para ejecutar los scripts sobre imágenes en tiempo real del dron:
+    
+    
