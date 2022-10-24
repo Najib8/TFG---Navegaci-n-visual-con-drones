@@ -1,5 +1,7 @@
 # TFG - Navegación visual con drones
 
+Este trabajo hace uso del código desarrollado en el proyecto [MATNet](https://github.com/tfzhou/MATNet).
+
 ## 1. Instalación
 
 Para instalar este proyecto tienes que llevarte el proyecto a local:
@@ -47,8 +49,8 @@ Ya tenemos todos los paquetes instalados para poder ejecutar todos los scripts c
 ## 2. Preparación del código y de las secuencias de imágenes
 
 Para poder ejecutar los scripts necesitamos tener las secuencias de imágenes preparadas.
-Tenemos dos opciones: ejecutar los scripts para evaluar los modelos desarrollados utilizando el conjunto de datos DAVIS2017 o
-ejecutar los scripts sobre las imágenes en tiempo real que nos ofrece un dron (al que deberemos estar conectados).
+Tenemos dos opciones: utilizar el conjunto de datos DAVIS2017 o 
+las imágenes en tiempo real que nos ofrece un dron (al que deberemos estar conectados).
 Además los códigos para ejecutar estas dos opciones son levemente diferentes: para DAVIS2017, el código está en la rama `evaluacion-davis` y, para las imágenes del dron, en la rama `stream-dron`.
 
 - A) Opción para ejecutar los scripts sobre **DAVIS2017**:
@@ -72,5 +74,40 @@ Además los códigos para ejecutar estas dos opciones son levemente diferentes: 
     ```
 
 - B) Opción para ejecutar los scripts sobre imágenes en tiempo real del dron:
+
+  ...
     
-    
+## 3. Ejecución de los scripts
+
+Con los modelos y las secuencias de imágenes correctamente instaladas, solo tenemos que correr los scripts diferentes scripts.
+
+- A) Opción para ejecutar los scripts sobre **DAVIS2017**:
+
+  ### Estimación del flujo óptico
+
+  Desde el directorio raiz del proyecto ejecutamos:
+  ```
+  python3 ./MATNet/3rdparty/pytorch_pwc/run_davis_flow.py
+  ```
+  Este scipt almacenará los flujos ópticos de las secuencias de DAVIS2017 en el directorio `./MATNet/data`.
+
+  ### Segmentación del *IMO*
+  
+  Desde el directorio raiz del proyecto ejecutamos:
+  ```
+  python3 ./MATNet/test_MATNet.py
+  ```
+  Este scipt almacenará las segmentaciones de los *IMO*s de las secuencias de DAVIS2017 en el directorio `./MATNet/output/DAVIS16/{modelo}`.
+
+  ### Binarización de la segmentación del *IMO*
+
+  Desde el directorio raiz del proyecto ejecutamos:
+  ```
+  python3 ./MATNet/apply_densecrf_davis.py
+  ```
+  Este scipt almacenará las binarizaciones de las segmentaciones de los *IMO*s de las secuencias de DAVIS2017 en el directorio `./MATNet/output/DAVIS16/{modelo}_crf`.
+
+
+- B) Opción para ejecutar los scripts sobre imágenes en tiempo real del dron:
+
+  ...
