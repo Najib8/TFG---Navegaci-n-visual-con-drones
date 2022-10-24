@@ -43,13 +43,8 @@ def main():
             resize_factor = None
 
         # For DAVIS DB examples
-        raw_images_folder = '/home/najib/MATNet/data/DAVIS2017/JPEGImages/480p'
-        save_dir = '/home/najib/MATNet/data/DAVIS2017/davis2017-flow-' + method.value
-
-        # For tests1.0
-        # raw_images_folder = '/home/najib/Escritorio/Ing_Inf_4/TFG/tests1.0/frames'
-        # save_dir = '/home/najib/Escritorio/Ing_Inf_4/TFG/tests1.0/frames-flow'
-
+        raw_images_folder = os.getcwd() + '/MATNet/data/DAVIS2017/JPEGImages/480p'
+        save_dir = os.getcwd() + '/MATNet/data/DAVIS2017/davis2017-flow-' + method.value
         videos = os.listdir(raw_images_folder)
 
         time_videos = []
@@ -157,14 +152,6 @@ def run(imagefile1, imagefile2, save_file, method, resize_factor, original_shape
     cv2.imwrite(save_file, flow_color)
 
     return time_spent
-
-    # objectOutput = open(save_file, 'wb')
-
-    # numpy.array([ 80, 73, 69, 72 ], numpy.uint8).tofile(objectOutput)
-    # numpy.array([ tensor_output.size(2), tensor_output.size(1) ], numpy.int32).tofile(objectOutput)
-    # numpy.array(tensor_output.numpy().transpose(1, 2, 0), numpy.float32).tofile(objectOutput)
-
-	#objectOutput.close()
 
 
 if __name__ == '__main__':

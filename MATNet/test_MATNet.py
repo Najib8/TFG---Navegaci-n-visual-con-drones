@@ -43,8 +43,7 @@ image_transforms = transforms.Compose([to_tensor, normalize])
 
 model_name = 'MATNet' # specify the model name
 epoch = 0 # specify the epoch number
-test_result_dir = './output/DAVIS16'
-# test_result_dir = '/home/najib/Escritorio/Ing_Inf_4/TFG/tests1.0/frames-segmentation'
+test_result_dir = 'MATNet/output/DAVIS16'
 
 flow_methods = [FlowMethod.PWC,
                 FlowMethod.Farneback, FlowMethod.TVL1,
@@ -65,18 +64,15 @@ decoder.cuda()
 encoder.train(False)
 decoder.train(False)
 
-val_set = 'data/DAVIS2017/ImageSets/2016/val.txt'
-# val_set = '/home/najib/Escritorio/Ing_Inf_4/TFG/tests1.0/image_set.txt'
+val_set = 'MATNet/data/DAVIS2017/ImageSets/2016/val.txt'
 with open(val_set) as f:
     seqs = f.readlines()
     seqs = [seq.strip() for seq in seqs]
 
 for flow_method in flow_methods[:1]:
 
-    test_dir = 'data/DAVIS2017/JPEGImages/480p'
-    test_flow_dir = 'data/DAVIS2017/davis2017-flow-' + flow_method.value
-    # test_dir = '/home/najib/Escritorio/Ing_Inf_4/TFG/tests1.0/frames'
-    # test_flow_dir = '/home/najib/Escritorio/Ing_Inf_4/TFG/tests1.0/frames-flow'
+    test_dir = 'MATNet/data/DAVIS2017/JPEGImages/480p'
+    test_flow_dir = 'MATNet/data/DAVIS2017/davis2017-flow-' + flow_method.value
 
     save_folder = '{}/{}_epoch{}_{}'.format(test_result_dir,
                                             model_name, epoch, flow_method.value)

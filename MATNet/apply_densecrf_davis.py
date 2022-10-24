@@ -36,8 +36,8 @@ flow_methods = [FlowMethod.PWC,
 
 for flow_method in flow_methods:
 
-    image_dir = 'data/DAVIS2017/JPEGImages/480p'
-    davis_result_dir = 'output/DAVIS16'
+    image_dir = 'MATNet/data/DAVIS2017/JPEGImages/480p'
+    davis_result_dir = 'MATNet/output/DAVIS16'
     model_name = 'MATNet_epoch0_' + flow_method.value  # specify the folder name of saliency results
     mask_dir = os.path.join(davis_result_dir, model_name)
     save_dir = join(davis_result_dir, model_name + '_crf')
@@ -114,7 +114,6 @@ for flow_method in flow_methods:
             time_video['time'] += time.time() - time_start
 
             imsave(res_dir + '/' + frameName + '.png', MAP.reshape(mask.shape))
-            #print("Saving: " + res_dir + '/' + frameName + '.png')
 
         time_video['time'] /= len(listdir(seq_mask_dir))
         time_videos.append(time_video)
