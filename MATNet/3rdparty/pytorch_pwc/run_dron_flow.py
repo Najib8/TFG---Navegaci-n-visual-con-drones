@@ -2,17 +2,12 @@ from enum import Enum
 import time
 
 import torch
-import glob
-import getopt
-import math
 import numpy
-import os
 import PIL
 import PIL.Image
-import sys
 from run import estimate
-import flow_vis, cv2
-import csv
+import flow_vis
+import cv2
 from djitellopy import Tello
 
 
