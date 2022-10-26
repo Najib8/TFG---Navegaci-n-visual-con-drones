@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 5. Instalar `cupy 8.3.0` en el entorno de conda activo:
 ```
-conda install cuda=8.3.0
+conda install cupy=8.3.0
 ```
 
 6. Instalar `pytorch 1.4.0` en el entorno de conda activo:
