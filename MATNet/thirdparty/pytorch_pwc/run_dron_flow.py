@@ -5,7 +5,7 @@ import torch
 import numpy
 import PIL
 import PIL.Image
-from run import estimate
+from MATNet.thirdparty.pytorch_pwc.run import estimate
 import flow_vis
 import cv2
 from djitellopy import Tello
@@ -21,7 +21,22 @@ class FlowMethod(Enum):
     TVL1_05 = 'tlv1-0.5'
 
 
-def main():
+def run(image1, image2):
+
+    tensor_first = torch.FloatTensor(numpy.array(PIL.Image.fromarray(image1))[:, :, ::-1].transpose(2, 0, 1)
+                                     .astype(numpy.float32) * (1.0 / 255.0))
+    tensor_second = torch.FloatTensor(numpy.array(PIL.Image.fromarray(image2))[:, :, ::-1].transpose(2, 0, 1)
+                                      .astype(numpy.float32) * (1.0 / 255.0))
+
+    tensor_output = estimate(tensor_first, tensor_second).numpy().transpose(1, 2, 0)
+
+    flow_color = flow_vis.flow_to_color(tensor_output, convert_to_bgr=True)
+
+    return flow_color
+
+
+if __name__ == '__main__':
+
     # Create the Tello Object
     tello = Tello()
 
@@ -50,21 +65,3 @@ def main():
     # Estimate the optical flow
     flow = run(f1, f2)
     cv2.imwrite("flow.png", flow)
-
-
-def run(image1, image2):
-
-    tensor_first = torch.FloatTensor(numpy.array(PIL.Image.fromarray(image1))[:, :, ::-1].transpose(2, 0, 1)
-                                     .astype(numpy.float32) * (1.0 / 255.0))
-    tensor_second = torch.FloatTensor(numpy.array(PIL.Image.fromarray(image2))[:, :, ::-1].transpose(2, 0, 1)
-                                      .astype(numpy.float32) * (1.0 / 255.0))
-
-    tensor_output = estimate(tensor_first, tensor_second).numpy().transpose(1, 2, 0)
-
-    flow_color = flow_vis.flow_to_color(tensor_output, convert_to_bgr=True)
-
-    return flow_color
-
-
-if __name__ == '__main__':
-    main()

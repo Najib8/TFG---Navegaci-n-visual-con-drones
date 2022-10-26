@@ -1,19 +1,21 @@
-import csv
 from enum import Enum
-from time import time
 
+import cv2
 import torch
+import numpy as np
 from torchvision import transforms
 
 import os
-import glob
-from tqdm import tqdm
 from PIL import Image
 from scipy.misc import imresize
 
 from modules.MATNet import Encoder, Decoder
 from utils.utils import check_parallel
 from utils.utils import load_checkpoint_epoch
+
+import time
+from djitellopy import Tello
+from MATNet.thirdparty.pytorch_pwc.run_dron_flow import run
 
 
 class FlowMethod(Enum):
@@ -41,14 +43,10 @@ normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
 image_transforms = transforms.Compose([to_tensor, normalize])
 
-model_name = 'MATNet' # specify the model name
-epoch = 0 # specify the epoch number
+model_name = 'MATNet'  # specify the model name
+epoch = 0  # specify the epoch number
 test_result_dir = 'MATNet/output/DAVIS16'
 
-flow_methods = [FlowMethod.PWC,
-                FlowMethod.Farneback, FlowMethod.TVL1,
-                FlowMethod.Farneback_075, FlowMethod.TVL1_075,
-                FlowMethod.Farneback_05, FlowMethod.TVL1_05]
 
 encoder_dict, decoder_dict, enc_opt_dict, dec_opt_dict, load_args =\
     load_checkpoint_epoch(model_name, epoch, True, False)
@@ -64,90 +62,108 @@ decoder.cuda()
 encoder.train(False)
 decoder.train(False)
 
-val_set = 'MATNet/data/DAVIS2017/ImageSets/2016/val.txt'
-with open(val_set) as f:
-    seqs = f.readlines()
-    seqs = [seq.strip() for seq in seqs]
+# -- Prepare directories to save results --
 
-for flow_method in flow_methods[:1]:
+# Frames directory
+save_folder_frames = os.getcwd() + '/results/frames'
+if not os.path.exists(save_folder_frames):
+    os.makedirs(save_folder_frames)
 
-    test_dir = 'MATNet/data/DAVIS2017/JPEGImages/480p'
-    test_flow_dir = 'MATNet/data/DAVIS2017/davis2017-flow-' + flow_method.value
+# Optical flows
+save_folder_flows = os.getcwd() + '/results/optical_flows'
+if not os.path.exists(save_folder_flows):
+    os.makedirs(save_folder_flows)
 
-    save_folder = '{}/{}_epoch{}_{}'.format(test_result_dir,
-                                            model_name, epoch, flow_method.value)
+# Segmentations
+save_folder_video = os.getcwd() + '/results/segmentations'
+if not os.path.exists(save_folder_video):
+    os.makedirs(save_folder_video)
 
-    time_videos = []
 
-    for video in tqdm(seqs):
+# -- Prepare dron flow --
 
-        image_dir = os.path.join(test_dir, video)
-        flow_dir = os.path.join(test_flow_dir, video)
+# Create the Tello Object
+tello = Tello()
 
-        imagefiles = sorted(glob.glob(os.path.join(image_dir, '*.jpg')))[:-1]
-        flowfiles = sorted(glob.glob(os.path.join(flow_dir, '*.png')))
+# Initialize connection and streaming
+tello.connect()
+tello.streamon()
 
-        time_video = {'sequence': video, 'time': 0}
+# Initialize the frame reader
+frame_read = tello.get_frame_read()
 
-        with torch.no_grad():
-            for imagefile, flowfile in zip(imagefiles, flowfiles):
 
-                time_start = time()
+# -- Start --
 
-                image = Image.open(imagefile).convert('RGB')
-                flow = Image.open(flowfile).convert('RGB')
+# Obtain the first frame
+f1 = frame_read.frame
+cv2.imwrite('frame1.png', f1)
+print('Frame 1 obtained \n')
 
-                width, height = image.size
+# Wait for three tenths of a second
+time.sleep(0.3)
 
-                image = imresize(image, inputRes)
-                flow = imresize(flow, inputRes)
+for iteration in np.arange(10)+1:
+    print('Iteration', iteration, '\n')
 
-                image = image_transforms(image)
-                flow = image_transforms(flow)
+    # Obtain the second frame
+    f2 = frame_read.frame
+    cv2.imwrite(os.path.join(save_folder_frames, 'frame' + str(iteration+1) + '.png'), f2)
+    print('Frame 2 obtained \n')
 
-                image = image.unsqueeze(0)
-                flow = flow.unsqueeze(0)
+    # Estimate the optical flow
+    flow = run(f1, f2)
+    cv2.imwrite(os.path.join(save_folder_flows, 'flow' + str(iteration) + '.png'), flow)
+    print('Optical flow', iteration, 'obtained \n')
 
-                image, flow = image.cuda(), flow.cuda()
+    with torch.no_grad():
 
-                r5, r4, r3, r2 = encoder(image, flow)
-                mask_pred, bdry_pred, p2, p3, p4, p5 = decoder(r5, r4, r3, r2)
+        # Put the first frame and the optical flow estimated in MATNet to segment the IMO
+        image = Image.fromarray(f1).convert('RGB')
+        flow = Image.fromarray(flow).convert('RGB')
 
-                if use_flip:
-                    image_flip = flip(image, 3)
-                    flow_flip = flip(flow, 3)
-                    r5, r4, r3, r2 = encoder(image_flip, flow_flip)
-                    mask_pred_flip, bdry_pred_flip, p2, p3, p4, p5 =\
-                        decoder(r5, r4, r3, r2)
+        width, height = image.size
 
-                    mask_pred_flip = flip(mask_pred_flip, 3)
-                    bdry_pred_flip = flip(bdry_pred_flip, 3)
+        image = imresize(image, inputRes)
+        flow = imresize(flow, inputRes)
 
-                    mask_pred = (mask_pred + mask_pred_flip) / 2.0
-                    bdry_pred = (bdry_pred + bdry_pred_flip) / 2.0
+        image = image_transforms(image)
+        flow = image_transforms(flow)
 
-                mask_pred = mask_pred[0, 0, :, :]
-                mask_pred = Image.fromarray(mask_pred.cpu().detach().numpy() * 255).convert('L')
+        image = image.unsqueeze(0)
+        flow = flow.unsqueeze(0)
 
-                save_folder_video = save_folder + '/' + video
-                if not os.path.exists(save_folder_video):
-                    os.makedirs(save_folder_video)
+        image, flow = image.cuda(), flow.cuda()
 
-                save_file = os.path.join(save_folder_video,
-                                         os.path.basename(imagefile)[:-4] + '.png')
-                mask_pred = mask_pred.resize((width, height))
+        r5, r4, r3, r2 = encoder(image, flow)
+        mask_pred, bdry_pred, p2, p3, p4, p5 = decoder(r5, r4, r3, r2)
 
-                time_video['time'] += time() - time_start
+        if use_flip:
+            image_flip = flip(image, 3)
+            flow_flip = flip(flow, 3)
+            r5, r4, r3, r2 = encoder(image_flip, flow_flip)
+            mask_pred_flip, bdry_pred_flip, p2, p3, p4, p5 =\
+                decoder(r5, r4, r3, r2)
 
-                mask_pred.save(save_file)
+            mask_pred_flip = flip(mask_pred_flip, 3)
+            bdry_pred_flip = flip(bdry_pred_flip, 3)
 
-            time_video['time'] /= len(imagefiles)
-            time_videos.append(time_video)
+            mask_pred = (mask_pred + mask_pred_flip) / 2.0
+            bdry_pred = (bdry_pred + bdry_pred_flip) / 2.0
 
-    time_video = {'sequence': 'all sequences', 'time': sum([time['time'] for time in time_videos])}
-    time_videos.append(time_video)
+        mask_pred = mask_pred[0, 0, :, :]
+        mask_pred = Image.fromarray(mask_pred.cpu().detach().numpy() * 255).convert('L')
 
-    with open(save_folder + '/times.csv', 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=time_videos[0].keys())
-        writer.writeheader()
-        writer.writerows(time_videos)
+    save_file = os.path.join(save_folder_video, 'segmentation' + str(iteration) + '.png')
+    mask_pred = mask_pred.resize((width, height))
+
+    mask_pred.save(save_file)
+    print('Segmentation', iteration, 'saved \n')
+
+    # Update frame1 with the previous frame2
+    f1 = f2
+    print('Frame 1 obtained \n')
+
+# Finalize streaming and connection
+tello.streamoff()
+tello.end()
