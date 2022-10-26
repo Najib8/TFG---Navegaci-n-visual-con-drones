@@ -92,6 +92,8 @@ tello.streamon()
 # Initialize the frame reader
 frame_read = tello.get_frame_read()
 
+# Declare the number of frames taken before the connection is closed
+number_frames_taken = 30
 
 # -- Start --
 
@@ -103,7 +105,7 @@ print('Frame 1 obtained \n')
 # Wait for three tenths of a second
 time.sleep(0.3)
 
-for iteration in np.arange(10)+1:
+for iteration in np.arange(number_frames_taken)+1:
     print('Iteration', iteration, '\n')
 
     # Obtain the second frame
