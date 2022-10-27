@@ -156,70 +156,70 @@ Es decir, para cada ejecución obtendríamos tantas imágenes como iteraciones r
   1. Frames sucesivos originales de DAVIS2017: 
      1. Primer frame
 
-        [First Frame](examples/evaluation/frame1.jpg "First Frame")
+        ![First Frame](examples/evaluation/frame1.jpg "First Frame")
 
      2. Segundo frame
 
-        [Second Frame](examples/evaluation/frame1.jpg "Second Frame")
+        ![Second Frame](examples/evaluation/frame1.jpg "Second Frame")
 
   2. Estimación de los flujos ópticos obtenidos entre los frames sucesivos:
      1. Utilizando Farneback
 
-        [Flow Farneback](examples/evaluation/flow_farneback.png "Flow Farneback")
+        ![Flow Farneback](examples/evaluation/flow_farneback.png "Flow Farneback")
 
      2. Utilizando TV L1
 
-        [Flow TV L1](examples/evaluation/flow_tvl1.png "Flow TV L1")
+        ![Flow TV L1](examples/evaluation/flow_tvl1.png "Flow TV L1")
 
      3. Utilizando PWCNet
 
-        [Flow PWCNet](examples/evaluation/flow_pwcnet.png "Flow PWCNet")
+        ![Flow PWCNet](examples/evaluation/flow_pwcnet.png "Flow PWCNet")
 
   3. Estimación de las segmentaciones del *IMO* obtenidas entre los frames sucesivos:
      1. Utilizando Farneback
 
-        [Segmentation Farneback](examples/evaluation/segmentation_farneback.png "Segmentation Farneback")
+        ![Segmentation Farneback](examples/evaluation/segmentation_farneback.png "Segmentation Farneback")
 
      2. Utilizando TV L1
 
-        [Segmentation TV L1](examples/evaluation/segmentation_tvl1.png "Segmentation TV L1")
+        ![Segmentation TV L1](examples/evaluation/segmentation_tvl1.png "Segmentation TV L1")
 
      3. Utilizando PWCNet
 
-        [Segmentation PWCNet](examples/evaluation/segmentation_pwcnet.png "Segmentation PWCNet")
+        ![Segmentation PWCNet](examples/evaluation/segmentation_pwcnet.png "Segmentation PWCNet")
 
   4. Binarización de las segmentaciones del *IMO* obtenidas entre los frames sucesivos:
      1. Utilizando Farneback
 
-        [Binarization Farneback](examples/evaluation/binarization_farneback.png "Binarization Farneback")
+        ![Binarization Farneback](examples/evaluation/binarization_farneback.png "Binarization Farneback")
 
      2. Utilizando TV L1
 
-        [Binarization TV L1](examples/evaluation/binarization_tvl1.png "Binarization TV L1")
+        ![Binarization TV L1](examples/evaluation/binarization_tvl1.png "Binarization TV L1")
 
      3. Utilizando PWCNet
 
-        [Binarization PWCNet](examples/evaluation/binarization_pwcnet.png "Binarization PWCNet")
+        ![Binarization PWCNet](examples/evaluation/binarization_pwcnet.png "Binarization PWCNet")
 
   5. Anotación densa del *IMO* real aportada en DAVIS2017:
 
-     [Annotation](examples/evaluation/annotation.png "Annotation")
+     ![Annotation](examples/evaluation/annotation.png "Annotation")
 
 - B) Resultados para los scripts utilizados sobre las imágenes en streaming del dron:
   
   1. Frames sucesivos originales:
      1. Primer frame
 
-        [First Frame](examples/dron/frame1.png "First Frame")
+        ![First Frame](examples/dron/frame1.png "First Frame")
 
      2. Segundo frame
 
-        [Second Frame](examples/dron/frame2.png "Second Frame")
+        ![Second Frame](examples/dron/frame2.png "Second Frame")
 
    2. Estimación del flujo óptico obtenido entre los frames sucesivos:
 
-        [Optical Flow (PWCNet)](examples/dron/flow1.png "Optical Flow (PWCNet)")
+        ![Optical Flow (PWCNet)](examples/dron/flow1.png "Optical Flow (PWCNet)")
      
    3. Estimación de la segmentación del *IMO* obtenida entre los frames sucesivos:
 
-        [Segmentation (MATNet)](examples/dron/segmentation1.png "Segmentation (MATNet)")
+        ![Segmentation (MATNet)](examples/dron/segmentation1.png "Segmentation (MATNet)")
