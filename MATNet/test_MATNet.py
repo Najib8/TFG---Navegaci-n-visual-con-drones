@@ -99,7 +99,7 @@ number_frames_taken = 30
 
 # Obtain the first frame
 f1 = frame_read.frame
-cv2.imwrite('frame1.png', f1)
+cv2.imwrite(os.path.join(save_folder_frames, 'frame1.png'), f1)
 print('Frame 1 obtained \n')
 
 # Wait for three tenths of a second
