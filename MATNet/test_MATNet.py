@@ -6,7 +6,7 @@ import numpy as np
 from torchvision import transforms
 
 import os
-from PIL import Image
+from PIL import Image, ImageDraw
 from scipy.misc import imresize
 
 from modules.MATNet import Encoder, Decoder
@@ -79,6 +79,15 @@ save_folder_video = os.getcwd() + '/results/segmentations'
 if not os.path.exists(save_folder_video):
     os.makedirs(save_folder_video)
 
+# Binarizations
+save_folder_binarizations = os.getcwd() + '/results/binarizations'
+if not os.path.exists(save_folder_binarizations):
+    os.makedirs(save_folder_binarizations)
+
+# Bounding boxes
+save_folder_boxes = os.getcwd() + '/results/bounding-boxes'
+if not os.path.exists(save_folder_boxes):
+    os.makedirs(save_folder_boxes)
 
 # -- Prepare dron flow --
 
@@ -93,7 +102,10 @@ tello.streamon()
 frame_read = tello.get_frame_read()
 
 # Declare the number of frames taken before the connection is closed
-number_frames_taken = 30
+number_frames_taken = 100
+
+# Declare threshold parameter
+threshold = 191
 
 # -- Start --
 
@@ -158,6 +170,40 @@ for iteration in np.arange(number_frames_taken)+1:
 
     save_file = os.path.join(save_folder_video, 'segmentation' + str(iteration) + '.png')
     mask_pred = mask_pred.resize((width, height))
+
+    # Threshold the image to binarize the IMO
+
+    save_file_thresh = os.path.join(save_folder_binarizations, 'segmentation_thresh' + str(iteration) + '.png')
+    _, mask_thresh = cv2.threshold(np.array(mask_pred), threshold, 255, cv2.THRESH_BINARY)
+    cv2.imwrite(save_file_thresh, mask_thresh)
+
+    # Get binarized IMO limits at right, top, left and bottom
+
+    mask_bool = np.array(mask_thresh, dtype=bool)  # from color to bool
+
+    # Collapse matrix to both axes
+    mask_bool_x = np.logical_or.reduce(mask_bool)
+    mask_bool_y = np.logical_or.reduce(mask_bool.transpose())
+
+    # Look for the IMO pixels
+    mask_idx_x = np.where(mask_bool_x == True)
+    mask_idx_y = np.where(mask_bool_y == True)
+
+    # Get the limits
+    if len(mask_idx_x[0]):
+        left_side = mask_idx_x[0][0]
+        right_side = mask_idx_x[0][-1]
+        top_side = mask_idx_y[0][0]
+        bottom_side = mask_idx_y[0][-1]
+
+    # Paint the corresponding rectangle (over the image) and save it
+
+    image_box = Image.fromarray(f2)
+    bounding_box = ImageDraw.ImageDraw(image_box)
+    bounding_box.rectangle(((left_side, top_side), (right_side, bottom_side)), fill=None, outline='green', width=4)
+
+    save_file_box = os.path.join(save_folder_boxes, 'segmentation_box' + str(iteration) + '.png')
+    image_box.save(save_file_box)
 
     mask_pred.save(save_file)
     print('Segmentation', iteration, 'saved \n')
