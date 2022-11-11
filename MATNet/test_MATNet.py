@@ -102,7 +102,7 @@ tello.streamon()
 frame_read = tello.get_frame_read()
 
 # Declare the number of frames taken before the connection is closed
-number_frames_taken = 100
+number_frames_taken = 1000
 
 # Declare threshold parameter
 threshold = 191
