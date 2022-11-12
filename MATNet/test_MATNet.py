@@ -196,14 +196,14 @@ for iteration in np.arange(number_frames_taken)+1:
         top_side = mask_idx_y[0][0]
         bottom_side = mask_idx_y[0][-1]
 
-    # Paint the corresponding rectangle (over the image) and save it
+        # Paint the corresponding rectangle (over the image) and save it
 
-    image_box = Image.fromarray(f2)
-    bounding_box = ImageDraw.ImageDraw(image_box)
-    bounding_box.rectangle(((left_side, top_side), (right_side, bottom_side)), fill=None, outline='green', width=4)
+        image_box = Image.fromarray(f1)
+        bounding_box = ImageDraw.ImageDraw(image_box)
+        bounding_box.rectangle(((left_side, top_side), (right_side, bottom_side)), fill=None, outline='green', width=4)
 
-    save_file_box = os.path.join(save_folder_boxes, 'segmentation_box' + str(iteration) + '.png')
-    image_box.save(save_file_box)
+        save_file_box = os.path.join(save_folder_boxes, 'segmentation_box' + str(iteration) + '.png')
+        image_box.save(save_file_box)
 
     mask_pred.save(save_file)
     print('Segmentation', iteration, 'saved \n')
