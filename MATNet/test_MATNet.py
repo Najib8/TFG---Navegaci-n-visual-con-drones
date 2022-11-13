@@ -198,7 +198,7 @@ for iteration in np.arange(number_frames_taken)+1:
 
         # Paint the corresponding rectangle (over the image) and save it
 
-        image_box = Image.fromarray(f1)
+        image_box = Image.fromarray(f1).convert('RGB')
         bounding_box = ImageDraw.ImageDraw(image_box)
         bounding_box.rectangle(((left_side, top_side), (right_side, bottom_side)), fill=None, outline='green', width=4)
 
